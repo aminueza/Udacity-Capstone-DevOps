@@ -32,7 +32,6 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh "kubectl set image deployment/udacity-deployment udacity=scaredcat/udacity-kube:${env.GIT_COMMIT[0..7]}"
             }
         }
     }
