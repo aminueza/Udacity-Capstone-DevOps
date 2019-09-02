@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: capstone-bcrypt
+  labels:
+    app: capstone-bcrypt
+spec:
+  selector:
+    matchLabels:
+      app: capstone-bcrypt
+      run: capstone-bcrypt
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    progressDeadlineSeconds: 1200
+    minReadySeconds: 60
+  template:
+    metadata:
+      labels:
+        app: capstone-bcrypt
+    spec:
+      terminationGracePeriodSeconds: 60
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: "app"
+                operator: In
+                values:
+                - capstone-bcrypt
+              - key: "temporary"
+                operator: In
+                values:
+                - "true"
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: udacity
+        image: aminueza/capstone-bcrypt
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: 1250m
+            cpu: 3000m
+          requests:
+            memory: 2048m
+            cpu: 600m
+        ports:
+        - containerPort: 9080
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            scheme: HTTP
+            port: 9080
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 2
+          timeoutSeconds: 1
+---
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v1
+metadata:
+  name: capstone-bcrypt
+spec:
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: capstone-bcrypt
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80

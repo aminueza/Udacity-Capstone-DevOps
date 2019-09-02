@@ -1,0 +1,47 @@
+{
+  "name": "bcrypt-sandbox",
+  "productName": "Bcrypt Sandbox",
+  "description": "A tool for encrypting and decrypting text with bcrypt.",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "parcel src/index.html",
+    "build": "parcel build src/index.html --no-source-maps",
+    "serve": "static-server dist",
+    "lint": "eslint --fix --cache --color --ext .jsx,.js src"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Victor Nogueira",
+    "email": "felladrin@gmail.com",
+    "url": "https://victornogueira.io"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/felladrin/bcrypt-sandbox"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-hot-loader": "^4.12.12",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^0.85.0",
+    "static-server": "^2.2.1"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.2",
+    "@types/react-dom": "^16.9.0",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-plugin-transform-es2015-classes": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "eslint": "^6.3.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.14.3",
+    "parcel-bundler": "^1.12.3"
+  }
+}

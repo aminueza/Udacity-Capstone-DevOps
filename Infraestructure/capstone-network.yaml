@@ -1,0 +1,158 @@
+---
+Description: >
+  Amanda Souza / Udacity 2019 / Capstone Project
+  CloudFormation file to create VPC to EKS.
+Parameters:
+  Capstone:
+    Description: An Enviroment name to tag resources
+    ConstraintDescription: Your env is invalid! Please, type an environment from the list
+    Type: String
+    Default: sandbox
+    AllowedValues:
+      - sandbox #env to developers create and test web apps
+      - staging #env to pre-live web apps
+      - production #env to add web app to production
+
+Mappings:
+  DefaultConfig:
+    VPC:
+      CIDR: 10.0.0.0/16
+    Subnet1:
+      CIDR: 10.0.0.0/24
+    Subnet2:
+      CIDR: 10.0.1.0/24
+    Subnet3:
+      CIDR: 10.0.2.0/24
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      CidrBlock: !FindInMap
+        - DefaultConfig
+        - VPC
+        - CIDR
+      Tags:
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Ref Capstone
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Ref Capstone
+
+  GatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+  
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Sub ${Capstone}-route-table
+
+  Route:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayAttachment
+    Properties:
+      RouteTableId: !Ref RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  Subnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: !FindInMap
+        - DefaultConfig
+        - Subnet1
+        - CIDR
+      Tags:
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Sub ${Capstone}-Subnet-1
+
+  Subnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: !FindInMap
+        - DefaultConfig
+        - Subnet2
+        - CIDR
+      Tags:
+        - Key: Network
+          Value: Private
+        - Key: Name
+          Value: !Sub ${Capstone}-Subnet-2
+  
+  Subnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: !FindInMap
+        - DefaultConfig
+        - Subnet3
+        - CIDR
+      Tags:
+        - Key: Network
+          Value: Private
+        - Key: Name
+          Value: !Sub ${Capstone}-Subnet-3
+  
+  Subnet1RTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet1
+      RouteTableId: !Ref RouteTable
+  
+  Subnet2RTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet2
+      RouteTableId: !Ref RouteTable
+
+  Subnet3RTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet3
+      RouteTableId: !Ref RouteTable
+
+  EKSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Cluster network to worker nodes
+      VpcId: !Ref VPC
+
+Outputs:
+  VPCID:
+    Description: The VPCId of VPC
+    Value: !Ref VPC
+    Export:
+      Name: !Sub ${Capstone}-VPCID
+  
+  SubnetIds:
+    Description: Subnets from VPC
+    Value: !Join [ ",", [ !Ref Subnet1, !Ref Subnet2, !Ref Subnet3 ] ]
+
+  SecurityGroups:
+    Description: Security group for the EKS
+    Value: !Join [ ",", [ !Ref EKSSecurityGroup ] ]
