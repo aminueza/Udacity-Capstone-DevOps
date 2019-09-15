@@ -33,7 +33,7 @@ pipeline {
                 }
             }
         }
-        stage('Build') {
+        stage('Build & Push to dockerhub') {
             steps {
                 script {
                     dockerImage = docker.build("aminueza/capstone-bcrypt:${env.GIT_HASH}")
@@ -50,7 +50,7 @@ pipeline {
         }
         stage('Deploying to EKS') {
             steps {
-                    dir('k8s') {
+                    dir('${env.WORKSPACE}/k8s') {
                         sh 'kubectl apply -f capstone-k8s.yaml'
                     }
             }
