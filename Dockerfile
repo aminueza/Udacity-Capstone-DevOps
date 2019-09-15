@@ -4,6 +4,8 @@ WORKDIR /bcrypt
 
 COPY app/ /bcrypt/
 
+RUN .
+
 RUN npm install && \
     npm run build
 
