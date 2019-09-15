@@ -6,13 +6,11 @@ pipeline {
     agent any
     stages {
         stage('Lint Dockerfile') {
-            agent {
-                docker.image('hadolint/hadolint:latest-debian').inside(){
-                    sh 'hadolint Dockerfile | tee -a hadolint_lint.txt'
-            }
-            post {
-                always {
-                    archiveArtifacts 'hadolint_lint.txt'
+            steps {
+                script {
+                    docker.image('hadolint/hadolint:latest-debian').inside() {
+                        sh 'hadolint Dockerfile | tee -a hadolint_lint.txt'
+                    }
                 }
             }
         }
