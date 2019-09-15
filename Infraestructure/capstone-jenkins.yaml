@@ -14,12 +14,11 @@ Parameters:
   SourceIP:
     Description: Ip address to allow SSH access to the bastion host
     Type: String
-    Default: 90.191.9.164/32
+    Default: IP/32
 
   KeyJenkinsSSH:
     Description: KeyName to access jenkins host
     Type: "AWS::EC2::KeyPair::KeyName"
-    Default: capstone-jenkins
 
 Mappings:
   CapstoneRegion:

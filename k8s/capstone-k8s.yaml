@@ -105,7 +105,8 @@ metadata:
   annotations:
     ingress.kubernetes.io/force-ssl-redirect: "true"
     kubernetes.io/ingress.class: "ingress-nginx"
-    nginx.ingress.kubernetes.io/whitelist-source-range: "90.191.9.164/32"
+    #Limit app to my personal IP
+    #nginx.ingress.kubernetes.io/whitelist-source-range: "IP/32"
 
 spec:
   rules:
