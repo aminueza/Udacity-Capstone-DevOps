@@ -50,9 +50,11 @@ pipeline {
         }
         stage('Deploying to EKS') {
             steps {
-                    dir('k8s') {
-                        withAWS(credentials: 'aws-credentials', region: 'eu-west-1') {
-                            sh 'kubectl --kubeconfig=~/.kube/config apply -f capstone-k8s.yaml'
+                dir('k8s') {
+                    withAWS(credentials: 'aws-credentials', region: 'eu-west-1') {
+                            sh "aws eks --region eu-west-1 update-kubeconfig --name capstone"
+                            sh "kubectl apply -f auth-nodes.yaml"
+                            sh 'kubectl apply -f capstone-k8s.yaml'
                         }
                     }
             }
