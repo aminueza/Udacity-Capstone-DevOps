@@ -8,7 +8,7 @@ pipeline {
         stage('Lint Dockerfile') {
             agent {
                 docker {
-                    image 'hadolint/hadolint:latest-debian'
+                    image 'hadolint/hadolint:latest'
                     }
             }
             steps {
