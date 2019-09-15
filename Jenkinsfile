@@ -48,6 +48,11 @@ pipeline {
                 aquaMicroscanner imageName: "aminueza/capstone-bcrypt:${env.GIT_HASH}", notCompliesCmd: 'exit 4', onDisallowed: 'fail', outputFormat: 'html'
             }
         }
+        stage('Build Docker Container') {
+      		steps {
+			    sh 'docker run --name capstone -d -p 80:80 aminueza/capstone-bcrypt:${env.GIT_HASH}'
+            }
+        }
         stage('Deploying to EKS') {
             steps {
                 dir('k8s') {
