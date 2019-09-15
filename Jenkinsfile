@@ -1,6 +1,6 @@
 pipeline {
     environment {
-        dockerhubCredentials = 'dockerhub'
+        dockerhubCredentials = 'dockerhubCredentials'
     }
     agent any
     stages {
@@ -48,9 +48,12 @@ pipeline {
                 aquaMicroscanner imageName: "aminueza/capstone-bcrypt:${env.GIT_HASH}", notCompliesCmd: 'exit 4', onDisallowed: 'fail', outputFormat: 'html'
             }
         }
-        // stage('Deploy') {
-        //     steps {
-        //     }
-        // }
+        stage('Deploying to EKS') {
+            steps {
+                    dir('k8s') {
+                        sh 'kubectl apply -f capstone-k8s.yaml'
+                    }
+            }
+        }
     }
 }

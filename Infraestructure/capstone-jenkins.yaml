@@ -71,7 +71,7 @@ Resources:
             DeleteOnTermination: true
             VolumeType: "gp2"
       ImageId: !FindInMap [CapstoneRegion, !Ref "AWS::Region", HVM64]
-      InstanceType: t2.micro
+      InstanceType: t3.small
       KeyName: !Sub ${KeyJenkinsSSH}
   
   EIP:

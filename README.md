@@ -3,8 +3,9 @@
 ## Roadmap
   - [x] ~~Network Template~~
   - [x] ~~EKS Template~~
-  - [ ] Jenkins X Template
+  - [x] ~~Jenkins Template~~
   - [x] ~~Application code~~
   - [x] ~~Dockerfile~~
   - [x] ~~Jenkinsfile~~
   - [x] ~~Kubernetes Template~~
+  - [x] ~~NGINX Ingress Kubernetes Template~~
