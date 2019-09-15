@@ -6,7 +6,7 @@ This project is a requirement to graduate at [Cloud DevOps Nanodegree](https://w
 
 ## Technologies
 
-* Bcrypt app, as the main application.
+* [Bcrypt Sandbox](https://github.com/felladrin/bcrypt-sandbox), as the main application.
 * Docker, for building a ready-deploy application.
 * Kubernetes(AWS EKS), for automating deployment, scaling, and management of containerized applications.
 * NGINX Ingress Controller, for assembling an NGINX configuration file (nginx.conf).
