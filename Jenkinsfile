@@ -1,7 +1,7 @@
 pipeline {
     environment {
         dockerhubCredentials = 'dockerhub'
-        dockerTag = ${env.BUILD_ID}
+        dockerTag = "v1.2"
     }
     agent any
     stages {
