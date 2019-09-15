@@ -1,7 +1,6 @@
 pipeline {
     environment {
         dockerhubCredentials = 'dockerhub'
-        dockerTag = "v1.2"
     }
     agent any
     stages {
@@ -9,7 +8,17 @@ pipeline {
             steps {
                 script {
                     docker.image('hadolint/hadolint:latest-debian').inside() {
-                        sh 'hadolint Dockerfile'
+                            sh 'hadolint ./Dockerfile | tee -a hadolint_lint.txt'
+                            sh '''
+                                lintErrors=$(stat --printf="%s"  hadolint_lint.txt)
+                                if [ "$lintErrors" -gt "0" ]; then
+                                    echo "Errors have been found, please see below"
+                                    cat hadolint_lint.txt
+                                    exit 1
+                                else
+                                    echo "There are no erros found on Dockerfile!!"
+                                fi
+                            '''
                     }
                 }
             }
@@ -17,7 +26,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    dockerImage = docker.build("aminueza/capstone-bcrypt:${dockerTag}")
+                    dockerImage = docker.build("aminueza/capstone-bcrypt:${env.BUILD_NUMBER}")
                     docker.withRegistry('', dockerhubCredentials) {
                         dockerImage.push()
                     }
@@ -26,7 +35,7 @@ pipeline {
         }
         stage('Scan') {
             steps{
-                aquaMicroscanner imageName: "aminueza/capstone-bcrypt:${dockerTag}", notCompliesCmd: 'exit 4', onDisallowed: 'fail', outputFormat: 'html'
+                aquaMicroscanner imageName: "aminueza/capstone-bcrypt:${env.BUILD_NUMBER}", notCompliesCmd: 'exit 4', onDisallowed: 'fail', outputFormat: 'html'
             }
         }
         // stage('Deploy') {
