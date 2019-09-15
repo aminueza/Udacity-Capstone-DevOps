@@ -9,7 +9,7 @@ pipeline {
             steps {
                 script {
                     docker.image('hadolint/hadolint:latest-debian').inside() {
-                        sh 'hadolint Dockerfile | tee -a hadolint_lint.txt'
+                        sh 'hadolint Dockerfile'
                     }
                 }
             }
