@@ -43,7 +43,7 @@ pipeline {
                 }
             }
         }
-        stage('Scan Dockerfile') {
+        stage('Scan Dockerfile to find vulnerabilities') {
             steps{
                 aquaMicroscanner imageName: "aminueza/capstone-bcrypt:${env.GIT_HASH}", notCompliesCmd: 'exit 4', onDisallowed: 'fail', outputFormat: 'html'
             }
@@ -51,11 +51,15 @@ pipeline {
         stage('Deploying to EKS') {
             steps {
                     dir('k8s') {
-                        script {
-                            sh 'kubectl apply -f capstone-k8s.yaml'
+                        withAWS(credentials: 'aws-credentials', region: 'eu-west-1') {
+                            sh 'kubectl --kubeconfig=~/.kube/config apply -f capstone-k8s.yaml'
                         }
                     }
             }
+        }
+        stage("Cleaning Docker up") {
+            echo 'Cleaning up Docker'
+                sh "docker system prune"
         }
     }
 }
