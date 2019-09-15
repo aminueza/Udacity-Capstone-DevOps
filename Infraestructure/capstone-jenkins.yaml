@@ -1,0 +1,99 @@
+---
+Description: >
+  Amanda Souza / Udacity 2019
+  CloudFormation file to create EC2 instances.
+Parameters:
+  Capstone:
+    Description: An Enviroment name to tag resources
+    ConstraintDescription: Your env is invalid! Please, type an environment from the list
+    Type: String
+    AllowedValues:
+      - sandbox #env to developers create and test web apps
+      - staging #env to pre-live web apps
+      - production #env to add web app to production
+  SourceIP:
+    Description: Ip address to allow SSH access to the bastion host
+    Type: String
+    Default: 90.191.9.164/32
+
+  KeyJenkinsSSH:
+    Description: KeyName to access jenkins host
+    Type: "AWS::EC2::KeyPair::KeyName"
+    Default: capstone-jenkins
+
+Mappings:
+  CapstoneRegion:
+    eu-west-1:
+      HVM64: ami-06358f49b5839867c
+
+Resources:
+  CapstoneSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http to ec2 and SHH access
+      VpcId:
+        Fn::ImportValue: !Sub "${Capstone}-VPCID"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Sub ${SourceIP}
+      Tags:
+        - Key: Name
+          Value: !Sub ${Capstone}-WASG
+
+  CapstoneEc2:
+    Type: AWS::EC2::Instance
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          sudo apt-get update -y
+          sudo apt-get install default-jdk wget -y
+          cd /home/ubuntu
+          wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+          sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+          sudo apt-get update -y
+          sudo apt-get install jenkins tidy -y
+          sudo systemctl status jenkins
+      SecurityGroupIds:
+        - Ref: CapstoneSG
+      SubnetId:
+        Fn::ImportValue: !Sub "${Capstone}-SUBNET1"
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sdk"
+          Ebs:
+            VolumeSize: "10"
+            DeleteOnTermination: true
+            VolumeType: "gp2"
+      ImageId: !FindInMap [CapstoneRegion, !Ref "AWS::Region", HVM64]
+      InstanceType: t2.micro
+      KeyName: !Sub ${KeyJenkinsSSH}
+  
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain:
+        Fn::ImportValue: !Sub "${Capstone}-VPCID"
+
+  EIPAssociation0:
+    Type: AWS::EC2::EIPAssociation
+    DependsOn:
+      - CapstoneEc2
+      - EIP
+    Properties:
+      InstanceId:
+        Ref: CapstoneEc2
+      AllocationId:
+        Fn::GetAtt:
+          - EIP
+          - AllocationId
+
+Outputs:
+  Website:
+    Description: The Public DNS for the EC2 Instance
+    Value: !Join ['', ['http://', !GetAtt 'CapstoneEc2.PublicDnsName', ':8080']]

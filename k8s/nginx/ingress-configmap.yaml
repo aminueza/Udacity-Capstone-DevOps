@@ -1,0 +1,61 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name:  nginx-configuration
+  namespace: ingress-nginx
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+data:
+  use-proxy-protocol: "true"
+  ssl-redirect: "true"
+  #force-ssl-redirect: "true"
+  log-format-escape-json: "true"
+  log-format-upstream: '{ "time": "$time_iso8601", "remote_addr": "$proxy_protocol_addr",
+    "x-forward-for": "$proxy_add_x_forwarded_for", "request_id": "$req_id", "remote_user":
+    "$remote_user", "bytes_sent": $bytes_sent, "request_time": $request_time, "status":
+    $status, "vhost": "$host", "request_proto": "$server_protocol", "path": "$uri",
+    "request_query": "$args", "request_length": $request_length, "duration": $request_time,
+    "method": "$request_method", "http_referrer": "$http_referer", "http_user_agent":
+    "$http_user_agent" }'
+  proxy-body-size: "50m"
+  proxy-connect-timeout: "15"
+  proxy-read-timeout: "600"
+  proxy-send-timeout: "600"
+  body-size: "64m"
+
+  http-snippet: |
+    map true $pass_access_scheme {
+      default "https";
+    }
+    map true $pass_port {
+      default 443;
+    }
+    server {
+      listen 8080 proxy_protocol;
+      return 308 https://$host$request_uri;
+    }
+  # use custom errors for those 
+  custom-http-errors: "403,404,405,503"
+  # do not send server header to identify as nginx
+  server-tokens: "False"
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: tcp-services
+  namespace: ingress-nginx
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: udp-services
+  namespace: ingress-nginx
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx

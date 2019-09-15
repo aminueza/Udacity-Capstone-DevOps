@@ -92,7 +92,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      AvailabilityZone: !Select [0, !GetAZs ""]
+      AvailabilityZone: !Select [1, !GetAZs ""]
       CidrBlock: !FindInMap
         - DefaultConfig
         - Subnet2
@@ -107,7 +107,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      AvailabilityZone: !Select [0, !GetAZs ""]
+      AvailabilityZone: !Select [2, !GetAZs ""]
       CidrBlock: !FindInMap
         - DefaultConfig
         - Subnet3
@@ -149,9 +149,29 @@ Outputs:
     Export:
       Name: !Sub ${Capstone}-VPCID
   
+  SubnetID1:
+    Description: The subnetId of subnet 1
+    Value: !Ref Subnet1
+    Export:
+      Name: !Sub ${Capstone}-SUBNET1
+  
+  SubnetID2:
+    Description: The subnetId of subnet 2
+    Value: !Ref Subnet2
+    Export:
+      Name: !Sub ${Capstone}-SUBNET2
+  
+  SubnetID3:
+    Description: The subnetId of subnet 3
+    Value: !Ref Subnet2
+    Export:
+      Name: !Sub ${Capstone}-SUBNET3
+  
   SubnetIds:
     Description: Subnets from VPC
     Value: !Join [ ",", [ !Ref Subnet1, !Ref Subnet2, !Ref Subnet3 ] ]
+    Export:
+      Name: !Sub ${Capstone}-SUBNETS
 
   SecurityGroups:
     Description: Security group for the EKS

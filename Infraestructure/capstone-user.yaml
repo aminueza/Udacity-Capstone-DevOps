@@ -1,0 +1,55 @@
+---
+Description: >
+  Amanda Souza / Udacity 2019 / Capstone
+  CloudFormation file to allow EC2 instances to manage Web App S3.
+Parameters:
+  Capstone:
+    Description: "An Enviroment name to tag resources"
+    ConstraintDescription: "Your env is invalid! Please, type an environment from the list"
+    Type: "String"
+    AllowedValues:
+      - "sandbox" #env to developers create and test web apps
+      - "staging" #env to pre-live web apps
+      - "production" #env to add web app to production
+
+Resources:
+  JenkinsSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: 'This is the secret for Jenkins user'
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "jenkins"}'
+        GenerateStringKey: password
+        ExcludeLowercase: False
+        ExcludeUppercase: False
+        IncludeSpace: False
+        RequireEachIncludedType: True
+        PasswordLength: 20
+        ExcludeCharacters: '<>%`|;,."'
+
+  Group:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: jenkins
+      Path: /
+      Policies:
+        - PolicyName: String
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement: 
+              - Effect: "Allow"
+                Action: 
+                  - "ec2:*"
+                  - "s3:*"
+                  - "cloudformation:*"
+                  - "secretmanager:*"
+                Resource: "*"
+  
+  JenkinsUser:
+    Type: AWS::IAM::User
+    Properties: 
+      Groups:
+        - jenkins
+      LoginProfile:
+        Password: !Join ['', ['{{resolve:secretsmanager:', !Ref JenkinsSecret, ':SecretString:password}}' ]]
+      UserName: !Join ['', ['{{resolve:secretsmanager:', !Ref JenkinsSecret, ':SecretString:username}}' ]]

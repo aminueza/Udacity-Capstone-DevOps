@@ -1,7 +1,7 @@
 pipeline {
     environment {
         dockerhubCredentials = 'dockerhub'
-        dockerTag = $(date +%Y%m%d).$BUILD_NUMBER
+        dockerTag = ${env.BUILD_ID}
     }
     agent any
     stages {
@@ -28,6 +28,11 @@ pipeline {
                         dockerImage.push()
                     }
                 }
+            }
+        }
+        stage('Scan') {
+            steps{
+                aquaMicroscanner imageName: "aminueza/capstone-bcrypt:${dockerTag}", notCompliesCmd: 'exit 4', onDisallowed: 'fail', outputFormat: 'html'
             }
         }
         stage('Deploy') {

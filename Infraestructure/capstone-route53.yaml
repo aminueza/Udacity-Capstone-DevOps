@@ -1,0 +1,43 @@
+---
+Description: >
+  Amanda Souza / Udacity 2019 / Capstone
+  CloudFormation file to allow EC2 instances to manage Web App S3.
+Parameters:
+  Capstone:
+    Description: "An Enviroment name to tag resources"
+    ConstraintDescription: "Your env is invalid! Please, type an environment from the list"
+    Type: "String"
+    AllowedValues:
+      - "sandbox" #env to developers create and test web apps
+      - "staging" #env to pre-live web apps
+      - "production" #env to add web app to production
+
+  HostedZoneName:
+    Description:  The domain name, previously registered via Route 53, which you want to use for your web site.  
+    Type:  String
+    Default:  amandasouza.net
+
+Resources:
+  Cert:
+    Type: AWS::CertificateManager::Certificate
+    Properties: 
+      DomainName: !Ref HostedZoneName
+      ValidationMethod: DNS
+      SubjectAlternativeNames:
+      - !Sub "bcrypt.${HostedZoneName}"
+      DomainValidationOptions:
+      - DomainName: !Ref HostedZoneName
+        ValidationDomain: !Ref HostedZoneName
+      - DomainName: !Sub "bcrypt.${HostedZoneName}"
+        ValidationDomain: !Sub "bcrypt.${HostedZoneName}"
+
+  RecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties: 
+      HostedZoneName: !Sub ${HostedZoneName}.           # That dot on the end is important. 
+      Name: !Sub bcrypt.${HostedZoneName} 
+      Type: CNAME
+      TTL: 900
+      AliasTarget: 
+        DNSName: !GetAtt WwwCloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2

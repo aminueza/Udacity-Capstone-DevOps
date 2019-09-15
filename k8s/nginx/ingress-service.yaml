@@ -1,0 +1,33 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: ingress-nginx
+  namespace: ingress-nginx
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:eu-west-1:825317146186:certificate/9f89dbf5-698f-47f5-aff6-f114d6798079"
+    # the backend instances are HTTP
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
+    # Map port 443
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: https
+    # Increase the ELB idle timeout to avoid issues with WebSockets or Server-Sent Events.
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: '600'
+
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+  ports:
+  - name: http
+    port: 80
+    # We are using a target port of 8080 here instead of 80, this is to work around
+    # https://github.com/kubernetes/ingress-nginx/issues/2724
+    # This goes together with the `http-snippet` in the ConfigMap.
+    targetPort: 8080
+  - name: https
+    port: 443
+    targetPort: http
