@@ -52,6 +52,7 @@ pipeline {
             steps {
                 dir('k8s') {
                     withAWS(credentials: 'aws-credentials', region: 'eu-west-1') {
+                            sh "python --version"
                             sh "aws --version"
                             sh "kubectl apply -f auth-nodes.yaml"
                             sh 'kubectl apply -f capstone-k8s.yaml'
