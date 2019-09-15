@@ -7,12 +7,8 @@ pipeline {
     stages {
         stage('Lint Dockerfile') {
             agent {
-                docker {
-                    image 'hadolint/hadolint:latest'
-                    }
-            }
-            steps {
-                sh 'hadolint Dockerfile | tee -a hadolint_lint.txt'
+                docker.image('hadolint/hadolint:latest-debian').inside(){
+                    sh 'hadolint Dockerfile | tee -a hadolint_lint.txt'
             }
             post {
                 always {
