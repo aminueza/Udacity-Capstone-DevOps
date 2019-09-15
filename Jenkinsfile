@@ -50,7 +50,7 @@ pipeline {
         }
         stage('Deploying to EKS') {
             steps {
-                    dir('${env.WORKSPACE}/k8s') {
+                    dir('k8s') {
                         sh 'kubectl apply -f capstone-k8s.yaml'
                     }
             }
