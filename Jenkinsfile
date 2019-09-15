@@ -35,9 +35,9 @@ pipeline {
                 aquaMicroscanner imageName: "aminueza/capstone-bcrypt:${dockerTag}", notCompliesCmd: 'exit 4', onDisallowed: 'fail', outputFormat: 'html'
             }
         }
-        stage('Deploy') {
-            steps {
-            }
-        }
+        // stage('Deploy') {
+        //     steps {
+        //     }
+        // }
     }
 }
