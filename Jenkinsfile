@@ -19,9 +19,9 @@ pipeline {
                                     echo "There are no erros found on Dockerfile!!"
                                 fi
                             '''
-                            echo 'Stopping Docker Container'
-                            sh 'docker stop $(docker ps --format "{{.ID}}" )'
                     }
+                    echo 'Stopping Docker Container'
+                    sh 'docker rm -f $(docker ps --format "{{.ID}}" )'
                 }
             }
         }
