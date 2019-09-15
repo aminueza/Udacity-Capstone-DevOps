@@ -52,7 +52,7 @@ pipeline {
             steps {
                 dir('k8s') {
                     withAWS(credentials: 'aws-credentials', region: 'eu-west-1') {
-                            sh "aws eks --region eu-central-1 update-kubeconfig --name capstone"
+                            sh "aws eks --region eu-west-1 update-kubeconfig --name capstone"
                             sh "kubectl apply -f auth-nodes.yaml"
                             sh 'kubectl apply -f capstone-k8s.yaml'
                         }
