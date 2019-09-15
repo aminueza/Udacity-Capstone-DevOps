@@ -19,6 +19,8 @@ pipeline {
                                     echo "There are no erros found on Dockerfile!!"
                                 fi
                             '''
+                            echo 'Stopping Docker Container'
+                            sh 'docker stop $(docker ps --format "{{.ID}}" )'
                     }
                 }
             }
@@ -33,7 +35,7 @@ pipeline {
                 }
             }
         }
-        stage('Scan') {
+        stage('Scan Dockerfile') {
             steps{
                 aquaMicroscanner imageName: "aminueza/capstone-bcrypt:${env.BUILD_NUMBER}", notCompliesCmd: 'exit 4', onDisallowed: 'fail', outputFormat: 'html'
             }
