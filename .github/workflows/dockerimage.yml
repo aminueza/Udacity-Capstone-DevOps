@@ -3,7 +3,7 @@ env:
   DOCKER_USERNAME: ${{ github.actor }}
   DOCKER_PASSWORD: ${{secrets.DOCKERHUB_PASSWORD}}
   DOCKER_REPONAME:  "capstone-bcrypt"
-  DOCKER_TAG: ${{ github.sha }} 
+  DOCKER_TAG: ${GITHUB_SHA:0:6} 
 
 on:
   push:
