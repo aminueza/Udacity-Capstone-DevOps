@@ -73,5 +73,5 @@ jobs:
     - name: Scan bcrypt for CVEs
       uses: docker://docker.io/aquasec/trivy:0.2.1
       with:
-        args: --exit-code 1 --severity HIGH,CRITICAL ${{ env.IMAGE_TAG }}
+        args: --severity HIGH,CRITICAL ${{ env.IMAGE_TAG }}
     
