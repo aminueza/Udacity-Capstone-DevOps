@@ -15,15 +15,16 @@ on:
 jobs:
   check-dockerfile:
     name: Hadolint Dockerfile
-    runs-on: ubuntu-latest
+    runs-on: macOS-10.14
     timeout-minutes: 30
-    container: 
-      image: hadolint/hadolint:latest-debian
     steps:
       - name: Checkout git repo
         uses: actions/checkout@master
+        with:
+          fetch-depth: 1
       - name: Run hadolint
         run: |
+          brew install hadolint
           hadolint ./Dockerfile | tee -a hadolint_lint.txt
           lintErrors=$(stat --printf="%s"  hadolint_lint.txt)
           if [ "$lintErrors" -gt "0" ]; then
