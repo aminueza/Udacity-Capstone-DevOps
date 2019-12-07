@@ -14,6 +14,24 @@ on:
       - '.github/**'
 
 jobs:
+  check:
+    name: Hadolint
+    runs-on: ubuntu-latest
+    container: hadolint/hadolint:latest-debian
+    steps:
+      - uses: actions/checkout@master
+      - name: Run hadolint
+        run: |
+          hadolint ./Dockerfile | tee -a hadolint_lint.txt
+          lintErrors=$(stat --printf="%s"  hadolint_lint.txt)
+          if [ "$lintErrors" -gt "0" ]; then
+              echo "Errors have been found, please see below"
+              cat hadolint_lint.txt
+              exit 1
+          else
+              echo "There are no erros found on Dockerfile!!"
+          fi
+        
   docker-build-bcrypt:
     name: Docker build bcrypt
     runs-on: ubuntu-latest
@@ -23,7 +41,7 @@ jobs:
       run: |
         docker build . \
         --file Dockerfile \
-        --tag $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::6}
+        --tag $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}
     - name: Login to Dockerhub
       run: | 
         echo $DOCKER_PASSWORD | \
@@ -32,5 +50,5 @@ jobs:
     - name: Push the Docker image
       run: |
         docker push \
-        $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::6}
+        $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}
     
