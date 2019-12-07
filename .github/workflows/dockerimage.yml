@@ -54,12 +54,12 @@ jobs:
         echo "::set-env name=IMAGE_TAG::$image_tag"
    
   security-scan-bcrypt:
-    name: Scan ${{ IMAGE_TAG }}
+    name: Scan bcrypt
     needs: [docker-build-bcrypt]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Scan ${{ env.IMAGE_TAG }} for CVEs
+      - name: Scan bcrypt for CVEs
         uses: docker://docker.io/aquasec/trivy:0.2.1
         with:
           args: --exit-code 1 --severity HIGH,CRITICAL ${{ IMAGE_TAG }}
