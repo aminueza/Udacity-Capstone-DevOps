@@ -3,7 +3,7 @@ env:
   DOCKER_USERNAME: ${{ github.actor }}
   DOCKER_PASSWORD: ${{secrets.DOCKERHUB_PASSWORD}}
   DOCKER_REPONAME:  "capstone-bcrypt"
-  DOCKER_TAG: $(git show --oneline | head -1 | cut -d' ' -f1) 
+  DOCKER_TAG: ${{ github.sha }} 
 
 on:
   push:
@@ -12,6 +12,7 @@ on:
     paths:
       - 'Dockerfile'
       - 'app/**'
+      - '.github/**'
 
 jobs:
   docker-build-bcrypt:
@@ -20,9 +21,17 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag $DOCKER_USERNAME/$DOCKER_REPONAME:$DOCKER_TAG
+      run: |
+        docker build . \
+        --file Dockerfile \
+        --tag $DOCKER_USERNAME/$DOCKER_REPONAME:$DOCKER_TAG
     - name: Login to Dockerhub
-      run: echo $DOCKER_PASSWORD | docker login https://index.docker.io/v1/ --username $DOCKER_USERNAME --password-stdin
+      run: | 
+        echo $DOCKER_PASSWORD | \
+        docker login https://index.docker.io/v1/ \
+        --username $DOCKER_USERNAME --password-stdin
     - name: Push the Docker image
-      run: docker push $DOCKER_USERNAME/$DOCKER_REPONAME:$DOCKER_TAG
+      run: |
+        docker push \
+        $DOCKER_USERNAME/$DOCKER_REPONAME:$DOCKER_TAG
     
