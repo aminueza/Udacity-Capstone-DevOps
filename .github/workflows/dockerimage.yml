@@ -2,7 +2,8 @@ name: Docker Image CI
 env:
   DOCKER_USERNAME: ${{ github.actor }}
   DOCKER_PASSWORD: ${{secrets.DOCKERHUB_PASSWORD}}
-  DOCKER_REPONAME:  "capstone-bcrypt" 
+  DOCKER_REPONAME:  "capstone-bcrypt"
+  DOCKER_IMAGE: ${{ github.actor }}/$DOCKER_REPONAME:${GITHUB_SHA::7} 
 on:
   push:
     branches:
@@ -46,12 +47,7 @@ jobs:
       run: |
         docker build . \
         --file Dockerfile \
-        --tag $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}
-    - name: Set env vars
-      run: |
-        image_tag="$DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}"
-        echo "$image_tag"
-        echo "::set-env name=IMAGE_TAG::$image_tag"
+        --tag $DOCKER_IMAGE
    
   security-scan-bcrypt:
     name: Scan bcrypt
@@ -62,7 +58,7 @@ jobs:
       - name: Scan bcrypt for CVEs
         uses: docker://docker.io/aquasec/trivy:0.2.1
         with:
-          args: --exit-code 1 --severity HIGH,CRITICAL ${{ env.IMAGE_TAG }}
+          args: --exit-code 1 --severity HIGH,CRITICAL ${{ env.DOCKER_IMAGE }}
     
 #   docker-push-bcrypt:
 #     name: Docker push bcrypt
