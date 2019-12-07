@@ -13,75 +13,70 @@ on:
       - '.github/**'
 
 jobs:
-  check-dockerfile:
-    name: Hadolint Dockerfile
-    runs-on: macOS-10.14
-    timeout-minutes: 30
-    steps:
-      - name: Checkout git repo
-        uses: actions/checkout@master
-        with:
-          fetch-depth: 1
-      - name: Run hadolint
-        run: |
-          brew install hadolint
-          hadolint ./Dockerfile | tee -a hadolint_lint.txt
-          lintErrors=$(stat -f%z hadolint_lint.txt)
-          if [ "$lintErrors" -gt "0" ]; then
-              echo "Errors have been found, please see below"
-              cat hadolint_lint.txt
-              exit 1
-          else
-              echo "There are no erros found on Dockerfile!!"
-          fi
+#   check-dockerfile:
+#     name: Hadolint Dockerfile
+#     runs-on: macOS-10.14
+#     timeout-minutes: 30
+#     steps:
+#       - name: Checkout git repo
+#         uses: actions/checkout@master
+#         with:
+#           fetch-depth: 1
+#       - name: Run hadolint
+#         run: |
+#           brew install hadolint
+#           hadolint ./Dockerfile | tee -a hadolint_lint.txt
+#           lintErrors=$(stat -f%z hadolint_lint.txt)
+#           if [ "$lintErrors" -gt "0" ]; then
+#               echo "Errors have been found, please see below"
+#               cat hadolint_lint.txt
+#               exit 1
+#           else
+#               echo "There are no erros found on Dockerfile!!"
+#           fi
         
   docker-build-bcrypt:
     name: Docker build bcrypt
-    needs: [check-dockerfile]
+#     needs: [check-dockerfile]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout git repo
       uses: actions/checkout@master
-    - name: Build the Docker image
-      run: |
-        docker build . \
-        --file Dockerfile \
-        --tag $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}
+#     - name: Build the Docker image
+#       run: |
+#         docker build . \
+#         --file Dockerfile \
+#         --tag $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}
     - name: Set env vars
       run: |
         image_tag="$DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}"
+        echo "$image_tag"
         echo "::set-env name=IMAGE_TAG::$image_tag"
    
-  security-scan-bcrypt:
-    name: Scan Bcrypt
-    needs: [docker-build-bcrypt]
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    container:
-      image: aquasec/trivy:latest
-    steps:
-      - name: Show version (Trivy)
-        uses: docker://aquasec/trivy:latest
-        with:
-          args: -v
-      - name: Vulnerability Scan Of Docker Images With Trivy
-        uses: docker://docker.io/aquasec/trivy:0.2.1
-        with:
-          args: --exit-code 1 --severity HIGH,CRITICAL ${{ env.IMAGE_TAG }}
+#   security-scan-bcrypt:
+#     name: Scan Bcrypt
+#     needs: [docker-build-bcrypt]
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 30
+#     steps:
+#       - name: Vulnerability Scan Of Docker Images With Trivy
+#         uses: docker://docker.io/aquasec/trivy:0.2.1
+#         with:
+#           args: --exit-code 1 --severity HIGH,CRITICAL ${{ env.IMAGE_TAG }}
     
-  docker-push-bcrypt:
-    name: Docker push bcrypt
-    needs: [security-scan-bcrypt]
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-    - name: Login to Dockerhub
-      run: | 
-        echo $DOCKER_PASSWORD | \
-        docker login https://index.docker.io/v1/ \
-        --username $DOCKER_USERNAME --password-stdin
-    - name: Push the Docker image
-      run: |
-        docker push \
-        ${{ env.IMAGE_TAG }}
+#   docker-push-bcrypt:
+#     name: Docker push bcrypt
+#     needs: [security-scan-bcrypt]
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 30
+#     steps:
+#     - name: Login to Dockerhub
+#       run: | 
+#         echo $DOCKER_PASSWORD | \
+#         docker login https://index.docker.io/v1/ \
+#         --username $DOCKER_USERNAME --password-stdin
+#     - name: Push the Docker image
+#       run: |
+#         docker push \
+#         ${{ env.IMAGE_TAG }}
     
