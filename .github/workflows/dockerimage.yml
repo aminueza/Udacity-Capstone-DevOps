@@ -42,27 +42,27 @@ jobs:
     steps:
     - name: Checkout git repo
       uses: actions/checkout@master
-#     - name: Build the Docker image
-#       run: |
-#         docker build . \
-#         --file Dockerfile \
-#         --tag $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}
+    - name: Build the Docker image
+      run: |
+        docker build . \
+        --file Dockerfile \
+        --tag $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}
     - name: Set env vars
       run: |
         image_tag="$DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}"
         echo "$image_tag"
         echo "::set-env name=IMAGE_TAG::$image_tag"
    
-#   security-scan-bcrypt:
-#     name: Scan Bcrypt
-#     needs: [docker-build-bcrypt]
-#     runs-on: ubuntu-latest
-#     timeout-minutes: 30
-#     steps:
-#       - name: Vulnerability Scan Of Docker Images With Trivy
-#         uses: docker://docker.io/aquasec/trivy:0.2.1
-#         with:
-#           args: --exit-code 1 --severity HIGH,CRITICAL ${{ env.IMAGE_TAG }}
+  security-scan-bcrypt:
+    name: Scan ${{ env.IMAGE_TAG }}
+    needs: [docker-build-bcrypt]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Scan ${{ env.IMAGE_TAG }} for CVEs
+        uses: docker://docker.io/aquasec/trivy:0.2.1
+        with:
+          args: --exit-code 1 --severity HIGH,CRITICAL ${{ env.IMAGE_TAG }}
     
 #   docker-push-bcrypt:
 #     name: Docker push bcrypt
