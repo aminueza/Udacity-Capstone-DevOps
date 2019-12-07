@@ -3,7 +3,6 @@ env:
   DOCKER_USERNAME: ${{ github.actor }}
   DOCKER_PASSWORD: ${{secrets.DOCKERHUB_PASSWORD}}
   DOCKER_REPONAME:  "capstone-bcrypt" 
-
 on:
   push:
     branches:
@@ -21,7 +20,8 @@ jobs:
     container: 
       image: hadolint/hadolint:latest-debian
     steps:
-      - uses: actions/checkout@master
+      - name: Checkout git repo
+        uses: actions/checkout@master
       - name: Run hadolint
         run: |
           hadolint ./Dockerfile | tee -a hadolint_lint.txt
@@ -36,18 +36,24 @@ jobs:
         
   docker-build-bcrypt:
     name: Docker build bcrypt
+    needs: [check-dockerfile]
     runs-on: ubuntu-latest
     steps:
-    - name: "Checkout git repo"
+    - name: Checkout git repo
       uses: actions/checkout@master
     - name: Build the Docker image
       run: |
         docker build . \
         --file Dockerfile \
         --tag $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}
+    - name: Set env vars
+      run: |
+        image_tag="$DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}"
+        echo "::set-env name=IMAGE_TAG::$image_tag"
    
   security-scan-bcrypt:
     name: Scan Bcrypt
+    needs: [docker-build-bcrypt]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container:
@@ -60,12 +66,13 @@ jobs:
       - name: Vulnerability Scan Of Docker Images With Trivy
         uses: docker://docker.io/aquasec/trivy:latest
         with:
-          args: --format json --no-progress --output report.json $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}
+          args: --format json --no-progress --output report.json ${{ env.IMAGE_TAG }}
       - name: Show result (JSON)
         run: cat report.json
     
   docker-push-bcrypt:
     name: Docker push bcrypt
+    needs: [security-scan-bcrypt]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -77,5 +84,5 @@ jobs:
     - name: Push the Docker image
       run: |
         docker push \
-        $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}
+        ${{ env.IMAGE_TAG }}
     
