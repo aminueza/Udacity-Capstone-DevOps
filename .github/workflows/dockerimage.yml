@@ -47,7 +47,7 @@ jobs:
       run: |
         docker build . \
         --file Dockerfile \
-        --tag $DOCKER_IMAGE
+        --tag $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}
    
   security-scan-bcrypt:
     name: Scan bcrypt
@@ -79,5 +79,5 @@ jobs:
 #     - name: Push the Docker image
 #       run: |
 #         docker push \
-#         ${{ env.IMAGE_TAG }}
+#         $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}
     
