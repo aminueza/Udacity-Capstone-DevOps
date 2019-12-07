@@ -4,7 +4,7 @@ WORKDIR /bcrypt
 
 COPY app/ /bcrypt/
 
-RUN echo "[INFO]::[install-run-nmp]" \
+RUN echo "[INFO]::[install-run-nmp]" && \
     npm install && \
     npm run build
 
