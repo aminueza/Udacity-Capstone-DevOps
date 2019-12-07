@@ -14,10 +14,12 @@ on:
       - '.github/**'
 
 jobs:
-  check:
-    name: Hadolint
+  check-dockerfile:
+    name: Hadolint Dockerfile
     runs-on: ubuntu-latest
-    container: hadolint/hadolint:latest-debian
+    timeout-minutes: 30
+    container: 
+      image: hadolint/hadolint:latest-debian
     steps:
       - uses: actions/checkout@master
       - name: Run hadolint
@@ -36,12 +38,37 @@ jobs:
     name: Docker build bcrypt
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - name: "Checkout git repo"
+      uses: actions/checkout@master
     - name: Build the Docker image
       run: |
         docker build . \
         --file Dockerfile \
         --tag $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}
+   
+  security-scan-bcrypt:
+    name: Scan Bcrypt
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: aquasec/trivy:latest
+    steps:
+      - name: Show version (Trivy)
+        uses: docker://aquasec/trivy:latest
+        with:
+          args: -v
+      - name: Vulnerability Scan Of Docker Images With Trivy
+        uses: docker://docker.io/aquasec/trivy:latest
+        with:
+          args: --format json --no-progress --output report.json $DOCKER_USERNAME/$DOCKER_REPONAME:${GITHUB_SHA::7}
+      - name: Show result (JSON)
+        run: cat report.json
+    
+  docker-push-bcrypt:
+    name: Docker push bcrypt
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
     - name: Login to Dockerhub
       run: | 
         echo $DOCKER_PASSWORD | \
