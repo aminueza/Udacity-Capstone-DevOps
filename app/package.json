@@ -3,11 +3,12 @@
   "productName": "Bcrypt Sandbox",
   "description": "A tool for encrypting and decrypting text with bcrypt.",
   "version": "1.0.0",
+  "private": true,
   "main": "src/index.js",
   "scripts": {
     "start": "parcel src/index.html",
     "build": "parcel build src/index.html --public-url '.' --no-source-maps",
-    "serve": "static-server -p 80 dist",
+    "serve": "static-server dist",
     "lint": "eslint --fix --cache --color --ext .jsx,.js src"
   },
   "keywords": [],
@@ -27,7 +28,7 @@
     "react-dom": "^16.13.1",
     "react-hot-loader": "^4.12.21",
     "semantic-ui-css": "^2.4.1",
-    "semantic-ui-react": "^0.88.2",
+    "semantic-ui-react": "^1.2.0",
     "static-server": "^2.2.1"
   },
   "devDependencies": {
@@ -37,7 +38,7 @@
     "babel-plugin-transform-es2015-classes": "^6.24.1",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
-    "eslint": "^6.8.0",
+    "eslint": "^7.7.0",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-jsx-a11y": "^6.3.1",
